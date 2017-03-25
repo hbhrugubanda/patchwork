@@ -6,7 +6,6 @@
   "author": "Hari Bhrugubanda",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.1.5",
     "cassandra-driver": "^3.2.0",
     "hapi": "^16.1.0"
   }

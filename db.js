@@ -1,22 +1,25 @@
+'use strict';
+
 const cassandra = require('cassandra-driver');
-const async = require('async');
 
 // Create users table
 const KEYSPACE = 'patchwork';
 const HOST = '127.0.0.1';
 
-module.exports = class dbClient {
+exports.Client = class Client {
   constructor () {
     this.client = new cassandra.Client({contactPoints: [HOST], keyspace: KEYSPACE});
   }
 
   async get (user) {
     try {
-      let result = await client.execute(`"SELECT first_name, last_name, email FROM users WHERE email='${user.email}'`);
+      let statement = `SELECT first_name, last_name, email FROM users WHERE email='${user.email}';`;
+      console.log(statement);
+      let result = await this.client.execute(statement);
       if ( result.rows.length > 0 ) {
-          var user_result = result.rows[0];
-          console.log(`name = ${user_result.first_name}, email = ${user_result.email}`);
-          return user_result
+          var userResult = result.rows[0];
+          console.log(`name = ${userResult.first_name}, email = ${userResult.email}`);
+          return userResult
       } else {
           console.log("No results");
           return;
