@@ -1,14 +1,13 @@
 'use strict';
 
 const cassandra = require('cassandra-driver');
+const config = require('../config');
 
-// Create users table
-const KEYSPACE = 'patchwork';
-const HOST = '127.0.0.1';
+const { DB_KEYSPACE, DB_HOST } = config.settings;
 
 exports.Client = class Client {
   constructor () {
-    this.client = new cassandra.Client({contactPoints: [HOST], keyspace: KEYSPACE});
+    this.client = new cassandra.Client({contactPoints: [DB_HOST], keyspace: DB_KEYSPACE});
   }
 
   async get (user) {

@@ -1,8 +1,8 @@
 {
   "name": "patchwork",
   "version": "1.0.0",
-  "description": "Testing a node server",
-  "main": "index.js",
+  "description": "Back-end patchwork server",
+  "main": "server.js",
   "author": "Hari Bhrugubanda",
   "license": "MIT",
   "dependencies": {

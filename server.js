@@ -1,11 +1,11 @@
 'use strict';
 
 const Hapi = require('hapi');
-const db = require('./db');
-const dbClient = new db.Client();
-const user = {email : 'hari.b@example.com'}
+const db = require('./db/Interface');
+
 // Create a server with a host and port
 const server = new Hapi.Server();
+const dbInterface = new db.Interface();
 
 server.connection({
     host: 'localhost',
@@ -17,11 +17,8 @@ server.route({
     method: 'GET',
     path:'/user/{email}',
     handler: function (request, reply) {
-        const user = {
-          email : request.params.email
-        }
-        let userResult = dbClient.get(user);
-        return reply(userResult);
+      let userResult = dbInterface.get(request.params.email);
+      return reply(userResult);
     }
 });
 
