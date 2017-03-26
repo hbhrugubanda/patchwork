@@ -21,7 +21,7 @@ exports.Client = class Client {
           return userResult
       } else {
           console.log("No results");
-          return;
+          return undefined;
       }
     } catch (err) {
       console.log(err);
@@ -30,13 +30,12 @@ exports.Client = class Client {
 
   async insert (user) {
     try {
-      let result = await client.execute(`INSERT INTO users (email, first_name, last_name) VALUES ('${user.email}', '${user.first_name}', '${user.last_name}')`);
-      console.log('inserted a row');
-      return true;
+      await this.client.execute(`INSERT INTO users (email, first_name, last_name) VALUES ('${user.email}', '${user.first_name}', '${user.last_name}')`);
+      return user;
     } catch (err) {
       // Run next function in series
       console.log(err);
-      return false;
+      return undefined;
     }
   }
 
