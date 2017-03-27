@@ -1,33 +1,33 @@
 'use strict';
 
 const Hapi = require('hapi');
-const db = require('./db/Interface');
 const Good = require('good');
 const Joi = require('joi');
 
 const { createErr } = require('./utils');
+const { CassandraUserClient } = require('./db/cassandraUserClient');
+
+const { UserInterface } = require('./db/userInterface');
+const { UserView } = require('./views/userView');
+
 
 // Create a server with a host and port
 const server = new Hapi.Server();
-const dbInterface = new db.Interface();
-
+// Create a dbClient
+const dbClient = new CassandraUserClient();
+// Create an interface for a User
+const userInterface = new UserInterface(dbClient);
 server.connection({
     host: 'localhost',
     port: 8000
 });
 
+const userView = new UserView(userInterface);
+
 server.route({
   method: 'GET',
   path:'/api/user/',
-  handler: (request, reply) => {
-    let userResult = dbInterface.get(request.query.email);
-    console.log(`GET user result ${userResult}`);
-    if (userResult) {
-      return reply(userResult);
-    } else {
-      return reply(createErr("User not found")).code(404);
-    }
-  },
+  handler: (request, reply) => userView.get(request, reply),
   config: {
     validate: {
       query: {
@@ -40,21 +40,26 @@ server.route({
 server.route({
   method: 'POST',
   path:'/api/user/',
-  handler: (request, reply) => {
-    console.log('POST Request payload:', request.payload);
-    let userResult = dbInterface.insert(request.payload);
-    if (userResult) {
-      return reply(userResult).code(201);
-    } else {
-      return reply(createErr("Bad request, User not created")).code(400);
-    }
-  },
+  handler: (request, reply) => userView.post(request, reply),
   config: {
     validate: {
       payload: {
         email: Joi.string().email().required(),
         firstName: Joi.string().required(),
         lastName: Joi.string().required()
+      }
+    }
+  }
+});
+
+server.route({
+  method: 'DELETE',
+  path:'/api/user/',
+  handler: (request, reply) => userView.delete(request, reply),
+  config: {
+    validate: {
+      payload: {
+        email: Joi.string().email().required()
       }
     }
   }

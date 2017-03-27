@@ -1,13 +1,14 @@
 'use strict';
 
+const { AbstractClient } = require('./abstractClient')
 const cassandra = require('cassandra-driver');
 const config = require('../config');
-
 const { DB_KEYSPACE, DB_HOST } = config.settings;
 
-exports.Client = class Client {
+exports.CassandraUserClient = class CassandraUserClient extends AbstractClient {
   constructor () {
-    this.client = new cassandra.Client({contactPoints: [DB_HOST], keyspace: DB_KEYSPACE});
+    const cassandraClient = new cassandra.Client({contactPoints: [DB_HOST], keyspace: DB_KEYSPACE})
+    super(cassandraClient);
   }
 
   async get (user) {
@@ -30,7 +31,8 @@ exports.Client = class Client {
 
   async insert (user) {
     try {
-      await this.client.execute(`INSERT INTO users (email, first_name, last_name) VALUES ('${user.email}', '${user.first_name}', '${user.last_name}')`);
+      let statement = `INSERT INTO users (email, first_name, last_name) VALUES ('${user.email}', '${user.first_name}', '${user.last_name}');`;
+      await this.client.execute(statement);
       return user;
     } catch (err) {
       // Run next function in series
@@ -39,31 +41,21 @@ exports.Client = class Client {
     }
   }
 
-  delete () {
-    console.log("delete not implemented.")
-  }
-
-  update () {
-    console.log("update not implemented.")
+  async delete (user) {
+    try {
+      let statement = `DELETE from users where email='${user.email}';`;
+      let result = await this.client.execute(statement);
+      return user;
+    } catch (err) {
+      // Run next function in series
+      console.log(err);
+      return undefined;
+    }
   }
 }
 
-
-
-
 // Use async series to run functions in serial (one after another)
 // async.series([
-    // Delete Bob
-    // function (callback) {
-    //     client.execute("DELETE FROM users WHERE lastname = 'Jones'", function (err, result) {
-    //         if (!err) {
-    //             console.log("Deleted");
-    //         }
-    //
-    //         // Run next function in series
-    //         callback(err, null);
-    //     });
-    // },
     // Read users and print to the console
     // function (callback) {
     //     client.execute("SELECT * FROM users WHERE lastname='Jones'", function (err, result) {
