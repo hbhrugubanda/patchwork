@@ -21,14 +21,12 @@ server.route({
   path:'/api/user/',
   handler: (request, reply) => {
     let userResult = dbInterface.get(request.query.email);
-    userResult.then( (res, err)=> {
-      console.log(`GET user result ${res}`);
-      if (res) {
-        return reply(res);
-      } else {
-        return reply(createErr("User not found")).code(404);
-      }
-    });
+    console.log(`GET user result ${userResult}`);
+    if (userResult) {
+      return reply(userResult);
+    } else {
+      return reply(createErr("User not found")).code(404);
+    }
   },
   config: {
     validate: {
@@ -45,14 +43,11 @@ server.route({
   handler: (request, reply) => {
     console.log('POST Request payload:', request.payload);
     let userResult = dbInterface.insert(request.payload);
-    userResult.then( (res, err)=> {
-      console.log(`POST user result ${res}`);
-      if (res) {
-        return reply(res).code(201);
-      } else {
-        return reply(createErr("Bad request, User not created")).code(400);
-      }
-    });
+    if (userResult) {
+      return reply(userResult).code(201);
+    } else {
+      return reply(createErr("Bad request, User not created")).code(400);
+    }
   },
   config: {
     validate: {
